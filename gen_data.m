@@ -1,3 +1,5 @@
+close all
+clear
 m=600; %num of address
 n=10; %num of identity
 average_input = 2;
@@ -10,11 +12,6 @@ label(:,1)=randperm(m);
 label(:,2)=round(rand(m,1)*(n-1))+1;
 [label(:,1) label_order] = sort(label(:,1),'ascend');
 label(:,2)=label(label_order,2);
-
-% label = [label; m+1,n+1];
-% function addrs = get_addr_with_id(label,id)
-%     return label(label(:,2)==id),1);
-% end
 
 used_addrs=zeros(m,1);
 tr={};
@@ -30,7 +27,7 @@ while true
 
         used_addrs(input_addrs) = 1;
 
-        other_users_addr = address(label(:,2)~=i);
+        other_users_addr = [address(~used_addrs & label(:,2)~=i), m+1:m*1.5]; %Allow address in set m transfer to outside address
 
         to_select = randperm(length(other_users_addr));
 
@@ -51,8 +48,28 @@ while true
     end
 end
 
-%%
-%begin cluster
+% %%
+% %gen transaction graph
+% 
+% figure(1)
+% hold on
+% w = floor(sqrt(m));
+% h = ceil(m/w);
+% for i = 1:2:length(tr)
+%     input_addr = tr{i};
+%     output_addr = tr{i+1};
+%     for a = input_addr
+%         for b = output_addr
+%             x_a = mod(a-1,w)+1;
+%             y_a = ceil(a/w);
+%             x_b = mod(b-1,w)+1;
+%             y_b = ceil(b/w);
+%             plot([x_a,x_b],[y_a,y_b])
+%         end
+%     end
+% end
+% %%
+% % begin cluster
 % clustered_label = zeros(m,m);
 % for i = 1:2:length(tr)
 %     input_addr = tr{i};
@@ -64,7 +81,7 @@ end
 %         end
 %     end
 %     for x=input_addr
-%         for y=output_addr
+%         for y=output_addr(output_addr<=m)
 %             clustered_label(x,y) = clustered_label(x,y)+0.1;
 %         end
 %     end
